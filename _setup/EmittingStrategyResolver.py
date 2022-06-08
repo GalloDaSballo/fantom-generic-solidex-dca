@@ -11,7 +11,9 @@ class StrategyResolver(StrategyCoreResolver):
         (Strategy Must Implement)
         """
         strategy = self.manager.strategy
-        return {}
+        return {
+            "lpDepositor": strategy.lpDepositor()
+        }
 
     def hook_after_confirm_withdraw(self, before, after, params):
         """
@@ -32,7 +34,7 @@ class StrategyResolver(StrategyCoreResolver):
         Specifies extra check for ordinary operation on earn
         Use this to verify that balances in the get_strategy_destinations are properly set
         """
-        assert True
+        assert True ## Verified in custom test
 
     def confirm_harvest(self, before, after, tx):
         """
@@ -57,4 +59,4 @@ class StrategyResolver(StrategyCoreResolver):
 
         (Strategy Must Implement)
         """
-        assert True
+        assert True ## Never run
