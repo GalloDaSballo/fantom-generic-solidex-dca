@@ -1,9 +1,8 @@
 ## Token deposited in the vault
-WANT = "0x4A81E80f7d77B4D1440A7Fef12bD47e0344F215B" ## wFTM / RenBT
+WANT = "0xb0ffAE1c213EAA031AA20a1DAC86f543438e8202" ## wFTM / WETH
 
 ## Tokens emitted
-REWARD = "0x1E4F97b9f9F913c46F1632781732927B9019C68b" ## CRV
-REWARD_WHALE = "0xb50b09e34ef778d36ec122be572fff0f101ef664" ## Badger Multi
+REWARD = "0x321162Cd933E2Be498Cd2267a90534A804051b11" ## wBTC
 
 ## Account that has a lot of want (we will "borrow it" for testing)
 WHALE_ADDRESS = "0xd013cb6dee3073c397632070eccc3032b300c6af"

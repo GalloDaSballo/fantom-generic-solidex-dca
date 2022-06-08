@@ -3,7 +3,7 @@ from helpers.constants import MaxUint256
 
 ## TODO: Make test fail by default so dev has to fix
 
-def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault, strategy, want, governance):
+def test_are_you_trying(deployer, user, reward, badgerTree, vault, strategy, want, governance):
     """
     Verifies that you set up the Strategy properly
     """
