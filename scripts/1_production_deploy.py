@@ -10,6 +10,7 @@ from brownie import (
 )
 
 from _setup.config import (
+    REWARD,
     WANT, 
     REGISTRY,
 
@@ -45,7 +46,7 @@ def main():
     registry = interface.IBadgerRegistry(REGISTRY)
 
     strategist = registry.get("governance")
-    badgerTree = registry.get("badgerTree")
+    badgerTree = "0xB9F9ac0aC2E21108c7335cD8751779522fC63979" ## BadgerRewards b0.1
     guardian = registry.get("guardian")
     keeper = registry.get("keeper")
     proxyAdmin = registry.get("proxyAdminTimelock")
@@ -133,7 +134,7 @@ def deploy_strategy(
 
     args = [
         vault,
-        [WANT]
+        [WANT, REWARD]
     ]
 
     print("Strategy Arguments: ", args)
