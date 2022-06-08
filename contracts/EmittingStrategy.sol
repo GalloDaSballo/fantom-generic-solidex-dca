@@ -79,10 +79,11 @@ contract EmittingStrategy is BaseStrategy, FantomSwapper {
     function _harvest() internal override returns (TokenAmount[] memory harvested) {
         // Any time you use Storage var more than once, just cache and read from memory
         IERC20Upgradeable cachedReward = reward;
+        address cachedWant = want;
 
         // 1. Claim rewards
         address[] memory pools = new address[](1);
-        pools[0] = want;
+        pools[0] = cachedWant;
         lpDepositor.getReward(pools);
 
         // 2. Swap all SOLID for wFTM
@@ -107,7 +108,7 @@ contract EmittingStrategy is BaseStrategy, FantomSwapper {
 
 
         harvested = new TokenAmount[](2);
-        harvested[0] = TokenAmount(want, 0);
+        harvested[0] = TokenAmount(cachedWant, 0);
         harvested[1] = TokenAmount(address(cachedReward), totalReward);
 
         // keep this to get paid!
