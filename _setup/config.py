@@ -5,7 +5,7 @@ WANT = "0xb0ffAE1c213EAA031AA20a1DAC86f543438e8202" ## wFTM / WETH
 REWARD = "0x321162Cd933E2Be498Cd2267a90534A804051b11" ## wBTC
 
 ## Account that has a lot of want (we will "borrow it" for testing)
-WHALE_ADDRESS = "0xd013cb6dee3073c397632070eccc3032b300c6af"
+WHALE_ADDRESS = "0x4467c288bb3f0a600f1dc9683eb6cd91aca45139"
 
 ## Address for Badger Registry, used to fill in default addresses
 ## See: https://github.com/Badger-Finance/badger-registry
