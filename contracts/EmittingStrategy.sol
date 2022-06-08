@@ -100,7 +100,7 @@ contract EmittingStrategy is BaseStrategy, FantomSwapper {
 
         // 4. Swap all wFTM for Reward
         uint256 wFTMBalance = wFTM.balanceOf(address(this));
-        if (wFTMBalance > 0) {
+        if (wFTMBalance > 0 && reward != wFTM) {
             _doOptimalSwap(address(wFTM), address(cachedReward), wFTMBalance);
         }
 
