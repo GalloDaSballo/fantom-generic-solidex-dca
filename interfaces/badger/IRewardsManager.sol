@@ -2,7 +2,7 @@
 
 pragma solidity 0.6.12;
 
-interface IRewards {
+interface IRewardsManager {
     function notifyTransfer(
         address from,
         address to,

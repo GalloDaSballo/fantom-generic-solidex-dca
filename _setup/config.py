@@ -1,12 +1,12 @@
 ## Token deposited in the vault
-WANT = "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+WANT = "0x4A81E80f7d77B4D1440A7Fef12bD47e0344F215B"
 
 ## Tokens emitted
-REWARD = "0x3472A5A71965499acd81997a54BBA8D852C6E53d" ## Badger
-REWARD_WHALE = "0xd0a7a8b98957b9cd3cfb9c0425abe44551158e9e" ## Badger Multi
+REWARD = "0x1E4F97b9f9F913c46F1632781732927B9019C68b" ## Badger
+REWARD_WHALE = "0xb50b09e34ef778d36ec122be572fff0f101ef664" ## Badger Multi
 
 ## Account that has a lot of want (we will "borrow it" for testing)
-WHALE_ADDRESS = "0xbf72da2bd84c5170618fbe5914b0eca9638d5eb5"
+WHALE_ADDRESS = "0xd013cb6dee3073c397632070eccc3032b300c6af"
 
 ## Address for Badger Registry, used to fill in default addresses
 ## See: https://github.com/Badger-Finance/badger-registry
@@ -16,4 +16,3 @@ PERFORMANCE_FEE_GOVERNANCE = 2_000 ## 20%
 PERFORMANCE_FEE_STRATEGIST = 0 ## 0%
 WITHDRAWAL_FEE = 10 ## 0.1%
 MANAGEMENT_FEE = 0 ## 0%
-

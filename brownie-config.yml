@@ -1,7 +1,7 @@
 # use Ganache's forked mainnet mode as the default network
 # NOTE: You don't *have* to do this, but it is often helpful for testing
 networks:
-    default: mainnet-fork
+    default: ftm-main-fork
 
 # automatically fetch contract sources from Etherscan
 autofetch_sources: True
@@ -10,7 +10,7 @@ autofetch_sources: True
 dependencies:
     - OpenZeppelin/openzeppelin-contracts-upgradeable@3.4.0
     - Badger-Finance/badger-vaults-1.5@exp-rewards.0
-    - GalloDaSballo/badger-onchain-rewards@rc.0
+    - GalloDaSballo/badger-onchain-rewards@b0.1
 
     - OpenZeppelin/openzeppelin-contracts@4.5.0 ## For BadgerRewards
 
@@ -21,7 +21,7 @@ compiler:
         remappings:
             - "@openzeppelin-contracts-upgradeable=OpenZeppelin/openzeppelin-contracts-upgradeable@3.4.0/contracts/"
             - "@badger-finance=Badger-Finance/badger-vaults-1.5@exp-rewards.0/contracts/"
-            - "@badger-rewards=GalloDaSballo/badger-onchain-rewards@rc.0/contracts/"
+            - "@badger-rewards=GalloDaSballo/badger-onchain-rewards@b0.1/contracts/"
 
             - "@oz=OpenZeppelin/openzeppelin-contracts@4.5.0/contracts/" ## For BadgerRewards
 

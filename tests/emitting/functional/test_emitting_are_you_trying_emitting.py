@@ -35,13 +35,10 @@ def test_are_you_trying(deployer, user, reward, reward_whale, badgerTree, vault,
     # assert want.balanceOf(strategy) < available
 
     # Use this if it should invest all
-    # assert want.balanceOf(strategy) == 0 ## Most staking invest all, change to above if needed
+    assert want.balanceOf(strategy) == 0 ## Most staking invest all, change to above if needed
 
     # Change to this if the strat is supposed to hodl and do nothing
-    assert strategy.balanceOfWant() == depositAmount * vault.toEarnBps() // vault.MAX_BPS()
-
-    ## Simulate earning by sending a deposit of rewards[0]
-    reward.transfer(strategy, 10e18, {"from": reward_whale}) ## TODO: Remove
+    # assert strategy.balanceOfWant() == depositAmount * vault.toEarnBps() // vault.MAX_BPS()
 
     harvest = strategy.harvest({"from": governance})
 

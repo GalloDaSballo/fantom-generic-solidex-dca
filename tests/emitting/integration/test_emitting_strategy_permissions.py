@@ -84,9 +84,7 @@ def test_strategy_action_permissions(deployer, vault, strategy, want, keeper):
 
     # withdrawToVault onlyVault
     for actor in actorsToCheck:
-        if actor == strategy.governance() or actor == strategy.strategist():
-            vault.withdrawToVault({"from": actor})
-        else:
+        if actor != strategy.governance() and actor != strategy.strategist():
             with brownie.reverts("onlyGovernanceOrStrategist"):
                 vault.withdrawToVault({"from": actor})
 

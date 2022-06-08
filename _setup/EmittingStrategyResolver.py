@@ -34,20 +34,20 @@ class StrategyResolver(StrategyCoreResolver):
         """
         assert True
 
-    # def confirm_harvest(self, before, after, tx):
-    #     """
-    #     Verfies that the Harvest produced yield and fees
-    #     NOTE: This overrides default check, use only if you know what you're doing
-    #     """
-    #     console.print("=== Compare Harvest ===")
-    #     self.manager.printCompare(before, after)
-    #     self.confirm_harvest_state(before, after, tx)
+    def confirm_harvest(self, before, after, tx):
+        """
+        Verfies that the Harvest produced yield and fees
+        NOTE: This overrides default check, use only if you know what you're doing
+        """
+        console.print("=== Compare Harvest ===")
+        self.manager.printCompare(before, after)
+        self.confirm_harvest_state(before, after, tx)
 
-    #     valueGained = after.get("sett.getPricePerFullShare") > before.get(
-    #         "sett.getPricePerFullShare"
-    #     )
+        valueGainedOrEqual = after.get("sett.getPricePerFullShare") >= before.get(
+            "sett.getPricePerFullShare"
+        )
 
-    #     assert True
+        assert valueGainedOrEqual
 
     def confirm_tend(self, before, after, tx):
         """

@@ -90,4 +90,4 @@ def test_is_acceptable_apr(vault, reward, strategy, want, keeper, deployer):
     apr = 52 * vault.lastHarvestAmount() / vault.assetsAtLastHarvest()
     ## TODO: Calculate APR based on reward value
     print(f"APR: {apr}")
-    assert apr > MIN_ACCEPTABLE_APR
+    assert apr >= MIN_ACCEPTABLE_APR ## 0 Cause we don't auto-compound
