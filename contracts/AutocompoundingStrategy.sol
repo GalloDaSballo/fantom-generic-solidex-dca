@@ -24,6 +24,10 @@ contract AutocompoundingStrategy is BaseStrategy, FantomSwapper {
     ILpDepositor public constant lpDepositor =
         ILpDepositor(0x26E1A0d851CF28E697870e1b7F053B605C8b060F);
 
+    // Since want is an LP_Token of Solidly, we track these
+    IERC20Upgradeable public token0; // Underlying of want 0
+    IERC20Upgradeable public token1; // Underlying of want 1
+
     uint256 private constant HALF_BPS = 5_000; // 50% in BPS
     uint256 private constant SLIPPAGE = 9_500; // 95% in BPS
 
@@ -38,8 +42,25 @@ contract AutocompoundingStrategy is BaseStrategy, FantomSwapper {
         want = _want;
         // reward = IERC20Upgradeable(_wantConfig[1]); // Unused but here for the template
 
+        // Approve for Staking
         IERC20Upgradeable(_want).safeApprove(address(lpDepositor), type(uint256).max);
 
+        // Approve for swaps
+        IBaseV1Pair lpToken = IBaseV1Pair(_want);
+        IERC20Upgradeable cachedToken0 = IERC20Upgradeable(lpToken.token0());
+        IERC20Upgradeable cachedToken1 = IERC20Upgradeable(lpToken.token1());
+        token0 = cachedToken0;
+        token1 = cachedToken1;
+
+        if(address(cachedToken0) != address(wFTM) && address(cachedToken0) != address(SOLID) && address(cachedToken0) != address(SEX)){
+            IERC20Upgradeable(token0).safeApprove(address(SOLIDLY_ROUTER), type(uint256).max);
+        }
+        
+        if(address(cachedToken1) != address(wFTM) && address(cachedToken1) != address(SOLID) && address(cachedToken1) != address(SEX)){
+            IERC20Upgradeable(token1).safeApprove(address(SOLIDLY_ROUTER), type(uint256).max);
+        }
+
+        // Setup pricer
         FantomSwapper__Initialize();
     }
 
@@ -103,34 +124,41 @@ contract AutocompoundingStrategy is BaseStrategy, FantomSwapper {
             _doOptimalSwap(address(SEX), address(wFTM), sexBalance);
         }
 
-        IBaseV1Pair lpToken = IBaseV1Pair(want);
-        IERC20Upgradeable token0 = IERC20Upgradeable(lpToken.token0());
-        IERC20Upgradeable token1 = IERC20Upgradeable(lpToken.token1());
+        IERC20Upgradeable cachedToken0 = token0;
+        IERC20Upgradeable cachedToken1 = token1;
 
         // 4. Swap all wFTM for token0
         uint256 wFTMBalance = wFTM.balanceOf(address(this));
-        if (wFTMBalance > 0 && address(wFTM) != address(token0)) {
-            _doOptimalSwap(address(wFTM), address(token0), wFTMBalance);
+        if (wFTMBalance > 0 && address(wFTM) != address(cachedToken0)) {
+            _doOptimalSwap(address(wFTM), address(cachedToken0), wFTMBalance);
         }
 
         // 5. Swap half of token0 for token1
-        uint256 token0BalanceHalf = token0.balanceOf(address(this)).mul(HALF_BPS).div(MAX_BPS);
+        uint256 token0BalanceHalf = cachedToken0.balanceOf(address(this)).mul(HALF_BPS).div(MAX_BPS);
         uint256 token1Bal;
         if (token0BalanceHalf > 0) {
-            token1Bal = _doOptimalSwap(address(token0BalanceHalf), address(token1), token0BalanceHalf);
+            token1Bal = _doOptimalSwap(address(cachedToken0), address(cachedToken1), token0BalanceHalf);
+        } else {
+            // Early return here
+            harvested = new TokenAmount[](1);
+            harvested[0] = TokenAmount(cachedWant, 0);
+
+            _reportToVault(0);
         }
 
-        uint256 token0Bal = token0.balanceOf(address(this));
+        uint256 token0Bal = cachedToken0.balanceOf(address(this));
+
+        IBaseV1Pair lpToken = IBaseV1Pair(cachedWant);
 
         // Get want by LP_ing 0 and 1
         SOLIDLY_ROUTER.addLiquidity(
-            address(token0),
-            address(token1),
+            address(cachedToken0),
+            address(cachedToken1),
             lpToken.stable(),
             token0Bal,
             token1Bal,
             token0Bal.mul(SLIPPAGE).div(MAX_BPS),
-            token0Bal.mul(SLIPPAGE).div(MAX_BPS),
+            token1Bal.mul(SLIPPAGE).div(MAX_BPS),
             address(this),
             now
         );
@@ -142,7 +170,7 @@ contract AutocompoundingStrategy is BaseStrategy, FantomSwapper {
         harvested[0] = TokenAmount(cachedWant, wantGained);
 
         // keep this to get paid!
-        _reportToVault(wantGained); // Keep at 0 as the strat emits
+        _reportToVault(wantGained);
 
         // Reinvest to not need tend
         _deposit(IERC20Upgradeable(cachedWant).balanceOf(address(this)));

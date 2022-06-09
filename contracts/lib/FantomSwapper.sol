@@ -65,11 +65,11 @@ contract FantomSwapper {
 
 
       // NOTE: Ganache sometimes will randomly revert over this line, no clue why, you may need to comment this out for testing on forknet
-      try SPOOKY_ROUTER.getAmountsOut(amountIn, path) returns (uint256[] memory spookyAmounts) {
-          spookyQuote = spookyAmounts[spookyAmounts.length - 1]; // Last one is the outToken
-      } catch (bytes memory) {
-          // We ignore as it means it's zero
-      }
+    //   try SPOOKY_ROUTER.getAmountsOut(amountIn, path) returns (uint256[] memory spookyAmounts) {
+    //       spookyQuote = spookyAmounts[spookyAmounts.length - 1]; // Last one is the outToken
+    //   } catch (bytes memory) {
+    //       // We ignore as it means it's zero
+    //   }
       
       // On average, we expect Solidly and Curve to offer better slippage
       // Spooky will be the default case
