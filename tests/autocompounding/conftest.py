@@ -3,7 +3,7 @@ This conftest setups the emitting strategy which is the base of any other strate
 """
 import time
 from brownie import (
-    EmittingBasicStrategy,
+    AutocompoundingStrategy,
     BadgerTree,
     TheVault,
     interface,
@@ -129,7 +129,7 @@ def deployed(want, deployer, strategist, keeper, guardian, governance, proxyAdmi
     vault.setStrategist(deployer, {"from": governance})
     # NOTE: TheVault starts unpaused
 
-    strategy = EmittingBasicStrategy.deploy({"from": deployer})
+    strategy = AutocompoundingStrategy.deploy({"from": deployer})
     strategy.initialize(vault, [want, REWARD])
     # NOTE: Strategy starts unpaused
 

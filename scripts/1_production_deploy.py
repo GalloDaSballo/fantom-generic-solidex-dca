@@ -62,7 +62,7 @@ def main():
     assert symbol != "bveSymbolHere"
 
     # Deploy Vault
-    vault = TheVault.at("0x5dA75c76565B69A5cDC5F2195E31362CEA00CD14")
+    vault = deploy_vault(dev, keeper, guardian, strategist, badgerTree, proxyAdmin, name, symbol, dev)
     
     # Deploy Strategy
     strategy = deploy_strategy(

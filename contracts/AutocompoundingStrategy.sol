@@ -16,15 +16,17 @@ import {IBaseV1Pair} from "../interfaces/solidly/IBaseV1Pair.sol";
 import {route} from "../interfaces/solidly/IBaseV1Router01.sol";
 
 
-/// NOTE: This strategy is broken and it's mostly a demo example of how to use swapper and the template to quickly get a strat done
-
-/// @dev A Simple Autocompounding Strategy that claims tokens, sells them for more underlying and redeposits
-contract AutocompoundingBasicStrategy is BaseStrategy, FantomSwapper {
+/// @dev The Autocompounding Strategy that claims tokens, sells them for more underlying and redeposits
+contract AutocompoundingStrategy is BaseStrategy, FantomSwapper {
     // address public want; // Inherited from BaseStrategy
 
     // Solidex
     ILpDepositor public constant lpDepositor =
         ILpDepositor(0x26E1A0d851CF28E697870e1b7F053B605C8b060F);
+
+    uint256 private constant HALF_BPS = 5_000; // 50% in BPS
+    uint256 private constant SLIPPAGE = 9_500; // 95% in BPS
+
 
     /// @dev Initialize the Strategy with security settings as well as tokens
     /// @notice Proxies will set any non constant variable you declare as default value
@@ -43,7 +45,7 @@ contract AutocompoundingBasicStrategy is BaseStrategy, FantomSwapper {
 
     /// @dev Return the name of the strategy
     function getName() external pure override returns (string memory) {
-        return "FTM-Solidex-AutocompoundingBasicStrategy";
+        return "FTM-Solidex-AutocompoundingStrategy";
     }
 
     /// @dev Return a list of protected tokens
@@ -101,14 +103,37 @@ contract AutocompoundingBasicStrategy is BaseStrategy, FantomSwapper {
             _doOptimalSwap(address(SEX), address(wFTM), sexBalance);
         }
 
-        // 4. Swap all wFTM for Reward
+        IBaseV1Pair lpToken = IBaseV1Pair(want);
+        IERC20Upgradeable token0 = IERC20Upgradeable(lpToken.token0());
+        IERC20Upgradeable token1 = IERC20Upgradeable(lpToken.token1());
+
+        // 4. Swap all wFTM for token0
         uint256 wFTMBalance = wFTM.balanceOf(address(this));
-        if (wFTMBalance > 0 && cachedWant != address(wFTM)) {
-            _doOptimalSwap(address(wFTM), address(cachedWant), wFTMBalance);
+        if (wFTMBalance > 0 && address(wFTM) != address(token0)) {
+            _doOptimalSwap(address(wFTM), address(token0), wFTMBalance);
         }
 
-        // NOTE: This assumes Solidex Want can be bought, which is highly unlikely
-        // You'd have to swap more times into token0 and token1 and then LP into Solidly
+        // 5. Swap half of token0 for token1
+        uint256 token0BalanceHalf = token0.balanceOf(address(this)).mul(HALF_BPS).div(MAX_BPS);
+        uint256 token1Bal;
+        if (token0BalanceHalf > 0) {
+            token1Bal = _doOptimalSwap(address(token0BalanceHalf), address(token1), token0BalanceHalf);
+        }
+
+        uint256 token0Bal = token0.balanceOf(address(this));
+
+        // Get want by LP_ing 0 and 1
+        SOLIDLY_ROUTER.addLiquidity(
+            address(token0),
+            address(token1),
+            lpToken.stable(),
+            token0Bal,
+            token1Bal,
+            token0Bal.mul(SLIPPAGE).div(MAX_BPS),
+            token0Bal.mul(SLIPPAGE).div(MAX_BPS),
+            address(this),
+            now
+        );
 
         uint256 totalNewWant = IERC20Upgradeable(cachedWant).balanceOf(address(this));
         uint256 wantGained = totalNewWant - prevWant;
