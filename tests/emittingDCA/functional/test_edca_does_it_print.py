@@ -1,7 +1,7 @@
 import brownie
 from brownie import *
 from helpers.constants import MaxUint256
-from helpers.SnapshotManagerEmitting import SnapshotManager
+from helpers.SnapshotManagerEmittingDCA import SnapshotManager
 
 MAX_BPS = 10_000
 MIN_ACCEPTABLE_APR = 0.
