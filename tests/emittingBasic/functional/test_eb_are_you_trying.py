@@ -42,7 +42,7 @@ def test_are_you_trying(deployer, user, reward, badgerTree, vault, strategy, wan
 
     harvest = strategy.harvest({"from": governance})
 
-    ## TEST 2: Does the strategy emit anything?
+    ## TEST 2: Does the strategy emit anything? ## NOTE: Fails unless you tweak
     event = harvest.events["TreeDistribution"]
     assert event["token"] == reward.address ## Add token you emit
     assert event["amount"] > 0 ## We want it to emit something
