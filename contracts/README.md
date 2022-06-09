@@ -1,6 +1,6 @@
 # Contracts
 
-## EmittingStrategy
+## EmittingDCAStrategy
 
 The strategy you'll write
 

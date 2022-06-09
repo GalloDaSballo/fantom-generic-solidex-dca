@@ -17,7 +17,7 @@ import {route} from "../interfaces/solidly/IBaseV1Router01.sol";
 
 
 /// @dev A DCA Emitting Strategy that claims tokens, sells them for reward and emits reward to the tree
-contract EmittingStrategy is BaseStrategy, FantomSwapper {
+contract EmittingDCAStrategy is BaseStrategy, FantomSwapper {
     // address public want; // Inherited from BaseStrategy
     IERC20Upgradeable public reward; // Token we autocompound into
 

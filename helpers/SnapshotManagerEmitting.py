@@ -6,7 +6,7 @@ from helpers.utils import val
 
 from helpers.snapshot.snap import Snap
 
-from _setup.EmittingStrategyResolver import StrategyResolver
+from _setup.EmittingDCAStrategyResolver import StrategyResolver
 
 console = Console()
 

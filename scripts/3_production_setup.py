@@ -1,6 +1,6 @@
 import time
 
-from brownie import accounts, network, EmittingStrategy, TheVault, BadgerRegistry
+from brownie import accounts, network, EmittingDCAStrategy, TheVault, BadgerRegistry
 
 from config import WANT, REWARD_TOKEN, LP_COMPONENT, REGISTRY
 
@@ -40,7 +40,7 @@ def main():
     assert STRAT != "123"
     assert VAULT != "123"
     
-    strategy = EmittingStrategy.at(STRAT)
+    strategy = EmittingDCAStrategy.at(STRAT)
     vault = TheVault.at(VAULT)
 
     assert strategy.paused() == False

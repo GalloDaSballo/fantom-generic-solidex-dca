@@ -3,7 +3,7 @@ import time
 from brownie import (
     accounts,
     network,
-    EmittingStrategy,
+    EmittingDCAStrategy,
     TheVault,
     AdminUpgradeabilityProxy,
     interface,
@@ -127,7 +127,7 @@ def deploy_strategy(
 
     print("Strategy Arguments: ", args)
 
-    strat_logic = EmittingStrategy.at("0x4055D395361E73530D43c9D4F18b0668fe4B5b91")
+    strat_logic = EmittingDCAStrategy.at("0x4055D395361E73530D43c9D4F18b0668fe4B5b91")
     time.sleep(sleep_between_tx)
 
     strat_proxy = AdminUpgradeabilityProxy.deploy(
@@ -140,7 +140,7 @@ def deploy_strategy(
 
     ## We delete from deploy and then fetch again so we can interact
     AdminUpgradeabilityProxy.remove(strat_proxy)
-    strat_proxy = EmittingStrategy.at(strat_proxy.address)
+    strat_proxy = EmittingDCAStrategy.at(strat_proxy.address)
 
     console.print("[green]Strategy was deployed at: [/green]", strat_proxy.address)
 
