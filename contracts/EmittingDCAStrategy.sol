@@ -42,7 +42,7 @@ contract EmittingDCAStrategy is BaseStrategy, FantomSwapper {
 
     /// @dev Return the name of the strategy
     function getName() external pure override returns (string memory) {
-        return "SolidexEmittingStrat";
+        return "FTM-Solidex-BasicEmittingDCAStrategy";
     }
 
     /// @dev Return a list of protected tokens

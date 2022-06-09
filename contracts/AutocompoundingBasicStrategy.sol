@@ -16,8 +16,8 @@ import {IBaseV1Pair} from "../interfaces/solidly/IBaseV1Pair.sol";
 import {route} from "../interfaces/solidly/IBaseV1Router01.sol";
 
 
-/// @dev A Basic Emitting Strategy that claims tokens and emits them
-contract EmittingBasicStrategy is BaseStrategy, FantomSwapper {
+/// @dev A Simple Autocompounding Strategy that claims tokens, sells them for more underlying and redeposits
+contract AutocompoundingBasicStrategy is BaseStrategy, FantomSwapper {
     // address public want; // Inherited from BaseStrategy
 
     // Solidex
@@ -32,25 +32,24 @@ contract EmittingBasicStrategy is BaseStrategy, FantomSwapper {
         address _want = _wantConfig[0]; // Cache to not read from storage below
 
         want = _want;
-
-        // Do not use _wantConfig[1] but keep it for the template
+        // reward = IERC20Upgradeable(_wantConfig[1]); // Unused but here for the template
 
         IERC20Upgradeable(_want).safeApprove(address(lpDepositor), type(uint256).max);
+
+        FantomSwapper__Initialize();
     }
 
     /// @dev Return the name of the strategy
     function getName() external pure override returns (string memory) {
-        return "FTM-Solidex-BasicEmittingStrategy";
+        return "FTM-Solidex-AutocompoundingBasicStrategy";
     }
 
     /// @dev Return a list of protected tokens
     /// @notice It's very important all tokens that are meant to be in the strategy to be marked as protected
     /// @notice this provides security guarantees to the depositors they can't be sweeped away
     function getProtectedTokens() public view virtual override returns (address[] memory) {
-        address[] memory protectedTokens = new address[](3);
+        address[] memory protectedTokens = new address[](1);
         protectedTokens[0] = want;
-        protectedTokens[1] = address(SEX);
-        protectedTokens[2] = address(SOLID);
         return protectedTokens;
     }
 
@@ -79,25 +78,47 @@ contract EmittingBasicStrategy is BaseStrategy, FantomSwapper {
 
     function _harvest() internal override returns (TokenAmount[] memory harvested) {
         // Any time you use Storage var more than once, just cache and read from memory
+        address cachedWant = want;
+
+        uint256 prevWant = IERC20Upgradeable(cachedWant).balanceOf(address(this));
+
         // 1. Claim rewards
         address[] memory pools = new address[](1);
-        pools[0] = want;
+        pools[0] = cachedWant;
         lpDepositor.getReward(pools);
 
-        uint256 sexEarned = SEX.balanceOf(address(this));
-        uint256 solidEarned = SOLID.balanceOf(address(this));
+        // 2. Swap all SOLID for wFTM
+        uint256 solidBalance = SOLID.balanceOf(address(this));
+        if (solidBalance > 0) {
+            _doOptimalSwap(address(SOLID), address(wFTM), solidBalance);
+        }
 
-        harvested = new TokenAmount[](2);
-        harvested[0] = TokenAmount(address(SEX), sexEarned);
-        harvested[1] = TokenAmount(address(SOLID), solidEarned);
+        // 3. Swap all SEX for wFTM
+        uint256 sexBalance = SEX.balanceOf(address(this));
+        if (sexBalance > 0) {
+            _doOptimalSwap(address(SEX), address(wFTM), sexBalance);
+        }
+
+        // 4. Swap all wFTM for Reward
+        uint256 wFTMBalance = wFTM.balanceOf(address(this));
+        if (wFTMBalance > 0 && cachedWant != address(wFTM)) {
+            _doOptimalSwap(address(wFTM), address(cachedWant), wFTMBalance);
+        }
+
+        // NOTE: This assumes Solidex Want can be bought, which is highly unlikely
+        // You'd have to swap more times into token0 and token1 and then LP into Solidly
+
+        uint256 totalNewWant = IERC20Upgradeable(cachedWant).balanceOf(address(this));
+        uint256 wantGained = totalNewWant - prevWant;
+
+        harvested = new TokenAmount[](1);
+        harvested[0] = TokenAmount(cachedWant, wantGained);
 
         // keep this to get paid!
-        _reportToVault(0); // Keep at 0 as the strat emits
-        
-        // Use this if your strategy doesn't sell the extra tokens
-        // This will take fees and send the token to the badgerTree
-        _processExtraToken(address(SEX), sexEarned); // Emit the token here
-        _processExtraToken(address(SOLID), solidEarned); // Emit the token here
+        _reportToVault(wantGained); // Keep at 0 as the strat emits
+
+        // Reinvest to not need tend
+        _deposit(IERC20Upgradeable(cachedWant).balanceOf(address(this)));
 
         return harvested;
     }
